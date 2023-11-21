@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <link rel="icon" href="https://cdn.discordapp.com/attachments/715482572607717436/1175499462437781604/icon.png">
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: beige; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      input { border: none; padding: 0 0.5rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+
+      #account-manager { background-color: gray; padding: 8px; color: lightgray; }
+      #account-manager > span { padding-left: 6px; font-weight: 600;}
+
+      #emojis-button { margin-top: 20px; padding: 0 0.5rem; cursor: pointer; }
+      em-emoji-picker { position: absolute; bottom: 55px; }
+    </style>
+    <script src="https://kit.fontawesome.com/bd7a16208c.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="account-manager">
+        <i class="fa-solid fa-user"></i>
+        <span>Your Username : </span>
+        <input id="userInput" autocomplete="username" value="Anonyme"/>
+    </div>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        </i><i class="fa-regular fa-face-laugh-beam fa-xl" id="emojis-button" onclick="emojisButtonClick()"></i><input id="msgInput" autocomplete="off"/><button>Send</button>
+    </form>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+    <script>
+        var socket = io();
+
+        var form = document.getElementById('form');
+        var msgInput = document.getElementById('msgInput');
+        var userInput = document.getElementById('userInput');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (msgInput.value) {
+                socket.emit('chat message', msgInput.value, userInput.value);
+                msgInput.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg, user) {
+            var item = document.createElement('li');
+            item.textContent = `${user} : ${msg}`;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        if (typeof(Storage) !== "undefined") {
+            if (localStorage.username != null || Str) userInput.value = localStorage.username
+            userInput.addEventListener("blur", function() {
+                localStorage.username = userInput.value
+            });
+        }
+
+        const pickerOptions = { onEmojiSelect: emojiSelected}
+        const picker = new EmojiMart.Picker(pickerOptions)
+        var emojisButton = document.getElementById('emojis-button');
+
+        changeEmojiPickerVisibility(false)
+
+        document.body.appendChild(picker)
+
+        function emojiSelected(emoji) {
+            msgInput.value += emoji.native
+        }
+
+        function changeEmojiPickerVisibility(visible) {
+            let boolToDisplay = (bool) => {return bool ? "" : "none"}
+            let displayToBool = (display) => {return display == "" }
+
+            picker.style.display = visible == null ? boolToDisplay(!displayToBool(picker.style.display)) : boolToDisplay(visible)
+        }
+
+        function emojisButtonClick() {
+            emojisButton.classList.toggle("fa-solid")
+            changeEmojiPickerVisibility()
+        }
+    </script>
+  </body>
+</html>
