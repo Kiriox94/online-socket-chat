@@ -11,6 +11,14 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.use('/ressources', (req, res) => {
+  if(req.path == "/style.css") {
+    res.sendFile(__dirname + '/style.css');
+  }else if(req.path == "/script.js") {
+    res.sendFile(__dirname + '/script.js');
+  }
+});
+
 io.on('connection', (socket) => {
   let userId = connectedUsers.length
   connectedUsers.push("Anonymous")
